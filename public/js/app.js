@@ -394,7 +394,6 @@ function wireUi() {
 function keys(e) {
   const typing = document.activeElement === $('#cmd');
   if (e.key === 'Escape') { setFocus(null); closeModal(); return; }
-  if (e.key === '?' || (e.key === '/' && !typing)) { e.preventDefault(); shortcuts(); return; }
   if (typing) return;
   if (e.code === 'Space') { e.preventDefault(); toggleTalk(); return; }
   if (/^[1-9]$/.test(e.key)) {
@@ -531,23 +530,6 @@ function openTradingView() {
     </p>
     <iframe src="${esc(host)}" title="TradingView ${esc(sym)}" loading="lazy" allow="fullscreen"></iframe>
     <p style="margin:10px 0 0"><a class="btn ghost" href="${esc(host)}" target="_blank" rel="noopener">open in a tab</a></p>`);
-}
-
-function shortcuts() {
-  const d = state.desk;
-  openModal(`<h3>The desk · shortcuts &amp; truth</h3>
-    <div class="grid2">
-      <div class="kv"><b>commands</b><span>space talk · ↵ send · 1-9 focus a seat · ←/→ cycle · m voices · h hands · f fullscreen · t tradingview</span></div>
-      <div class="kv"><b>say it like this</b><span>“pull up NVDA and mark the levels” · “what’s the macro read” · “forecast TSLA 20 day” · “buy 200 shares of NVDA” · “approve it” · “confirm the trade” · “how is the book health”</span></div>
-      <div class="kv"><b>the one hard rule</b><span>money moves only after Sentinel stamps the ticket and the operator confirms. Pilot verifies a signature it cannot produce.</span></div>
-      <div class="kv"><b>the data rule</b><span>a panel with no feed shows “—”, never a number. ${d?.feed?.simulated ? '<u>Right now the tape is simulated</u> — badge: SIM.' : 'The tape is live from Finnhub.'}</span></div>
-    </div>
-    <ul>
-      <li>feed: ${esc(d?.feed?.reason ?? '—')}</li>
-      <li>reasoning: ${esc(d?.desk?.llm ?? '—')} · signing key ${esc(d?.desk?.signingKey?.fingerprint?.slice(0, 12) ?? '—')} (ed25519, public half verified on execute)</li>
-      <li>screens bridge: ${d?.bridge?.configured ? `configured · ${esc(d.bridge.url)}` : 'desk chart only'}</li>
-      <li>execution: ${esc(d?.config?.executionMode ?? 'paper')} — no broker adapter exists in this build</li>
-    </ul>`);
 }
 
 function openModal(html) {

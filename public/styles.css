@@ -389,11 +389,6 @@ kbd { font: 700 9px/1 var(--mono); border: 1px solid var(--line); border-radius:
   background: linear-gradient(168deg, rgba(16, 23, 38, .98), rgba(9, 13, 22, .98)); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--glow); }
 .modal-card iframe { width: 100%; height: 62vh; border: 1px solid var(--line-soft); border-radius: 12px; background: #0a0e17; }
 .modal-card h3 { margin: 0 0 10px; font: 800 12px/1 var(--mono); letter-spacing: .18em; text-transform: uppercase; color: var(--gold); }
-.modal-card .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.modal-card .kv { padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,.03); border: 1px solid var(--line-soft); }
-.modal-card .kv b { display: block; font: 700 9px/1.6 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
-.modal-card .kv span { font-family: var(--mono); font-weight: 700; font-size: 12.5px; }
-.modal-card ul { margin: 6px 0 0; padding-left: 17px; font-size: 12px; line-height: 1.6; color: var(--ink-2); }
 .toast { position: fixed; left: 50%; bottom: 104px; transform: translateX(-50%); z-index: 50; padding: 10px 16px;
   background: rgba(10, 14, 24, .96); border: 1px solid var(--line); border-radius: 12px; font-size: 12px; color: var(--ink);
   box-shadow: 0 20px 50px -20px rgba(0,0,0,.9); animation: pop .2s ease-out; }
