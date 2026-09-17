@@ -1,0 +1,4 @@
+{
+  "_note": "SCHEMA EXAMPLE ONLY — the sweep list for SCOUT. Copy to data/watch-trending.json and put the tickers you actually follow. With no data/watch-trending.json and no top-movers access on your plan, SCOUT falls back to the standing watchlist in server/data/provider.js and says so.",
+  "symbols": ["NVDA", "AMD", "PLTR", "SMCI", "COIN", "MSTR", "TSLA", "AAPL", "META", "AVGO"]
+}

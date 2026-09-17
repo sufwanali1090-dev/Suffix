@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>F.R.I.D.A.Y. · the desk</title>
+<meta name="description" content="One master, nine specialist agents. A market desk you talk to — and that talks back to your charts." />
+<link rel="stylesheet" href="/styles.css" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='9' fill='%23ffcb52'/%3E%3Ccircle cx='16' cy='16' r='14' fill='none' stroke='%23ffcb52' stroke-opacity='.35' stroke-width='1.5'/%3E%3C/svg%3E" />
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="mark" aria-hidden="true"></span>
+    <span class="wordmark">F·R·I·D·A·Y</span>
+    <span class="byline">Cloud9 Research · nine specialists, one voice</span>
+  </div>
+
+  <div class="topstats">
+    <div class="stat" id="stat-feed" data-state="checking" title="Market data feed">
+      <span class="k">feed</span><span class="v" id="feed-label">—</span>
+    </div>
+    <div class="stat" id="stat-session" title="NYSE session">
+      <span class="k">session</span><span class="v" id="session-top">—</span>
+    </div>
+    <div class="stat" title="Sentinel signing key (ed25519)">
+      <span class="k">gate</span><span class="v" id="gate-label">—</span>
+    </div>
+    <div class="stat hide-sm" title="Reasoning layer">
+      <span class="k">mind</span><span class="v" id="llm-label">—</span>
+    </div>
+    <div class="clock"><span id="clock-et">--:--:--</span></div>
+    <div class="topbtns">
+      <button class="btn ghost" id="btn-hands" title="Steer the orb with your hands (MediaPipe)">🖐️ hands</button>
+      <button class="btn ghost" id="btn-mute" title="Mute the desk">🔊 voices</button>
+      <button class="btn ghost" id="btn-full" title="Fullscreen">⛶</button>
+    </div>
+  </div>
+</header>
+
+<div class="simband" id="sim-band" hidden>
+  <strong>SIMULATED TAPE</strong>
+  <span id="sim-reason">no FINNHUB_KEY — every number below is a labelled demo series, not market data.</span>
+  <button class="btn tiny" id="sim-dismiss" title="dismiss">got it</button>
+</div>
+
+<main class="hud">
+  <!-- ── LEFT: pulse / queue / log ─────────────────────────────────────── -->
+  <section class="col col-l">
+    <article class="panel" id="panel-pulse">
+      <header class="ph"><h2>Market pulse</h2><span class="hint" id="pulse-updated">—</span></header>
+      <div class="pulse" id="pulse"></div>
+      <footer class="pf"><span>rings = % vs prev close</span><span id="pulse-mode">—</span></footer>
+    </article>
+
+    <article class="panel" id="panel-queue">
+      <header class="ph"><h2>Task queue</h2><span class="hint">master → specialists</span></header>
+      <ul class="queue" id="queue"><li class="empty">nothing routed yet — say something</li></ul>
+    </article>
+
+    <article class="panel grow" id="panel-log">
+      <header class="ph">
+        <h2>Signal log</h2>
+        <span class="hint"><button class="btn tiny" id="log-clear">clear</button></span>
+      </header>
+      <ul class="log" id="log"><li class="empty">agents will post here as they see things</li></ul>
+    </article>
+  </section>
+
+  <!-- ── CENTER: the orb, the voice, the screens ───────────────────────── -->
+  <section class="col col-c">
+    <div class="stage" id="stage">
+      <canvas id="orb" width="900" height="720" aria-label="Desk orb with nine agent seats"></canvas>
+
+      <div class="orb-core">
+        <div class="orb-state" id="orb-state">standby</div>
+        <div class="orb-word" id="orb-word">F.R.I.D.A.Y.</div>
+        <div class="orb-sub" id="orb-sub">one command · nine specialists</div>
+      </div>
+
+      <div class="focus-card" id="focus-card" hidden>
+        <button class="close" id="focus-close" aria-label="close">×</button>
+        <div class="fc-top"><span class="glyph" id="fc-glyph">◈</span><h3 id="fc-name">—</h3><span class="role" id="fc-role">—</span></div>
+        <p id="fc-bio">—</p>
+        <div class="fc-actions">
+          <button class="btn" id="fc-route">route last command here</button>
+          <button class="btn ghost" id="fc-say">hear its voice</button>
+        </div>
+      </div>
+
+      <div class="reply" id="reply">
+        <div class="reply-head">
+          <span class="who" id="reply-who">the desk</span>
+          <span class="when" id="reply-when"></span>
+          <span class="routed" id="reply-routed"></span>
+        </div>
+        <p class="reply-text" id="reply-text">Ask for a briefing, or say “pull up Nvidia and mark the levels”.</p>
+        <div class="reply-card" id="reply-card" hidden></div>
+      </div>
+    </div>
+
+    <div class="screens" id="screens">
+      <header class="ph">
+        <h2>Screens · <span id="chart-symbol">—</span></h2>
+        <div class="seg" id="chart-tf">
+          <button data-tf="60">1H</button><button data-tf="D" class="on">1D</button><button data-tf="W">1W</button>
+        </div>
+        <span class="hint"><button class="btn tiny" id="btn-tv">open TradingView</button></span>
+      </header>
+      <div class="chart-wrap" id="chart-wrap">
+        <svg id="chart" viewBox="0 0 900 240" preserveAspectRatio="none" aria-label="desk chart with agent-drawn levels"></svg>
+        <div class="chart-tags" id="chart-tags"></div>
+      </div>
+      <footer class="pf"><span id="chart-note">no symbol loaded — CHARTIST drives this panel</span><span id="chart-src">—</span></footer>
+    </div>
+  </section>
+
+  <!-- ── RIGHT: session / calendar / load / gate ──────────────────────── -->
+  <section class="col col-r">
+    <article class="panel" id="panel-session">
+      <header class="ph"><h2>Market session</h2><span class="hint">America/New_York</span></header>
+      <div class="session">
+        <div class="dot" id="sess-dot"></div>
+        <div>
+          <div class="sess-label" id="sess-label">—</div>
+          <div class="sess-sub" id="sess-sub">—</div>
+        </div>
+      </div>
+      <div class="countdown"><span class="k" id="sess-count-label">next</span><span class="v" id="sess-countdown">—</span></div>
+      <p class="note" id="sess-hint">—</p>
+    </article>
+
+    <article class="panel" id="panel-cal">
+      <header class="ph"><h2>Calendar</h2><span class="hint" id="cal-month">—</span></header>
+      <div class="cal" id="cal"></div>
+      <footer class="pf">
+        <span><i class="cdot fomc"></i> FOMC</span><span><i class="cdot opex"></i> expiry</span>
+        <span id="cal-next">—</span>
+      </footer>
+    </article>
+
+    <article class="panel" id="panel-load">
+      <header class="ph"><h2>Agent load</h2><span class="hint">calls · p95</span></header>
+      <ul class="load" id="load"></ul>
+    </article>
+
+    <article class="panel grow" id="panel-gate">
+      <header class="ph"><h2>The gate</h2><span class="hint">Sentinel signs or vetoes</span></header>
+      <div class="gate" id="gate">
+        <p class="empty" id="gate-empty">no ticket on the desk. Nothing can trade without a stamp — try “buy 200 NVDA”.</p>
+        <div id="gate-body" hidden></div>
+      </div>
+    </article>
+  </section>
+</main>
+
+<!-- ── COMMAND BAR ─────────────────────────────────────────────────────── -->
+<footer class="cmdbar">
+  <div class="cmdbar-inner">
+    <button class="talk" id="btn-talk" aria-pressed="false">
+      <span class="talk-dot"></span>
+      <span class="talk-label">talk</span>
+    </button>
+    <form id="cmd-form" autocomplete="off">
+      <input id="cmd" placeholder="talk to the desk — “pull up NVDA and mark the levels”, “what's the macro read”, “buy 200 shares of NVDA”" />
+      <button class="btn send" type="submit">send <kbd>↵</kbd></button>
+    </form>
+    <div class="chips" id="chips">
+      <button class="chip" data-cmd="give me a briefing">briefing</button>
+      <button class="chip" data-cmd="pull up NVDA and mark the levels">mark the levels</button>
+      <button class="chip" data-cmd="forecast NVDA 20 day">20-day odds</button>
+      <button class="chip" data-cmd="what's moving today">what's moving</button>
+      <button class="chip" data-cmd="congress trades on NVDA">smart money</button>
+      <button class="chip" data-cmd="buy 200 shares of NVDA">buy 200 NVDA</button>
+      <button class="chip" data-cmd="how is the book health">book health</button>
+    </div>
+  </div>
+  <div class="cmdbar-note">
+    <span id="ears-label">ears: browser speech</span>·<span id="voice-label">voices: browser tts</span>·
+    <span>hold <kbd>space</kbd> to talk</span>·<span><kbd>1</kbd>–<kbd>9</kbd> focus a seat</span>·<span><kbd>?</kbd> shortcuts</span>
+  </div>
+</footer>
+
+<div class="modal" id="modal" hidden>
+  <div class="modal-card">
+    <button class="close" id="modal-close">×</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>

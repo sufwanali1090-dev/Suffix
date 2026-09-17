@@ -1,0 +1,27 @@
+{
+  "_note": "SCHEMA EXAMPLE ONLY — these are not real filings. Copy to data/smart-money.json and replace with your own export (House/Senate trade disclosures, an insider-transactions dump, a 13F parser). CAPITOL reads that file and nothing else; it will not narrate trades it cannot read.",
+  "filings": [
+    {
+      "ticker": "NVDA",
+      "person": "Rep. Placeholder",
+      "party": "XX",
+      "chamber": "House",
+      "transaction": "buy",
+      "amount_range_us": "$15,001 - $50,000",
+      "transaction_date": "YYYY-MM-DD",
+      "filed_date": "YYYY-MM-DD",
+      "source": "your export name"
+    },
+    {
+      "ticker": "MSFT",
+      "person": "Sen. Placeholder",
+      "party": "XX",
+      "chamber": "Senate",
+      "transaction": "purchase",
+      "amount_range_us": "$100,001 - $250,000",
+      "transaction_date": "YYYY-MM-DD",
+      "filed_date": "YYYY-MM-DD",
+      "source": "your export name"
+    }
+  ]
+}

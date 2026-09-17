@@ -1,0 +1,32 @@
+{
+  "name": "friday-desk",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "F.R.I.D.A.Y. \u2014 one master, nine specialist agents. A market desk you talk to. Zero-dependency Node core + Electron shell.",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "main": "app/main.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "desktop": "electron .",
+    "agent": "node server/agent-service.js",
+    "test": "node --test test/*.test.js",
+    "check": "node --check server/index.js"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0"
+  },
+  "keywords": [
+    "trading-desk",
+    "multi-agent",
+    "electron",
+    "claude-code",
+    "finnhub",
+    "tts",
+    "whisper"
+  ],
+  "license": "MIT"
+}
