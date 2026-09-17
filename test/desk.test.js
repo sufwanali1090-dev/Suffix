@@ -70,6 +70,15 @@ test('a dead feed shows as no data, never as a number', async () => {
   }
 });
 
+test('even the sim feed refuses a non-symbol', async () => {
+  const { feed } = await makeDesk();
+  const bad = await feed.quote('ZZZZZZ');
+  assert.equal(bad.ok, false);
+  assert.match(bad.reason, /not a symbol/);
+  const good = await feed.quote('NVDA');
+  assert.equal(good.ok, true);
+});
+
 test('the quant may not promise', async () => {
   const { hedge } = await import('../server/agents/oracle.js');
   assert.match(hedge('NVDA will break out tomorrow'), /is expected to/);

@@ -60,7 +60,17 @@ export class SimFeed {
     return s;
   }
 
+  // Even the demo feed keeps one real rule: US equity symbols are 1–5 letters.
+  // "ZZZZZZ" is not a ticker, so the sim refuses it, which means the desk's
+  // no-verified-price path is demonstrable with no key configured.
+  static looksLikeTicker(symbol) {
+    return /^[A-Z]{1,5}([.-][A-Z]{1,2})?$/.test(String(symbol || '').toUpperCase());
+  }
+
   async quote(symbol) {
+    if (!SimFeed.looksLikeTicker(symbol)) {
+      return { ok: false, symbol, reason: `sim feed: "${symbol}" is not a symbol I model (1–5 letters)` };
+    }
     const s = this.walk(symbol);
     // A seeded daily gap, so the tape has breadth and dispersion to read rather
     // than six flat lines. Deterministic per symbol per UTC day: refreshing the
@@ -88,6 +98,9 @@ export class SimFeed {
   }
 
   async history(symbol, { days = 180 } = {}) {
+    if (!SimFeed.looksLikeTicker(symbol)) {
+      return { ok: false, symbol, reason: 'sim feed: unknown symbol, no series' };
+    }
     const n = Math.min(days, 180);
     let price = anchor(symbol) * 0.78;
     const closes = [];

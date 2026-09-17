@@ -132,6 +132,6 @@ server/
   charting/mcp-bridge.js  {action,payload} → your TradingView
 public/               the HUD (orb, panels, voices, hands)
 app/                  Electron shell (~100 lines)
-test/                 28 tests: the gate, routing, guardrails, clocks
+test/                 29 tests: the gate, routing, guardrails, clocks
 docs/                 this file, ADD-AN-AGENT, VOICES, TRADINGVIEW-MCP, SAFETY
 ```

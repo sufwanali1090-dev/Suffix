@@ -105,7 +105,7 @@ orb to hear who it is.
 | --- | --- |
 | `npm start` | the desk (server + HUD) |
 | `npm run dev` | same, with `--watch` |
-| `npm test` | 28 tests: the gate, routing, guardrails, clocks |
+| `npm test` | 29 tests: the gate, routing, guardrails, clocks |
 | `npm run agent atlas` | run one specialist as its own service |
 | `npm i -D electron && npm run desktop` | the desktop shell (global push-to-talk, mic/camera grants, kiosk) |
 
