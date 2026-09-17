@@ -9,6 +9,8 @@
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 
 // ── minimal DOM: enough for querySelector/innerHTML/children/classList ──────
 class Node {
@@ -166,6 +168,34 @@ test('alerts, queue rows and load rows render without a browser', () => {
   assert.match(q('#queue').innerHTML, /1\/2 seats answered/);
   P.renderLoad([{ id: 'atlas', name: 'ATLAS', hue: 198 }], [{ agent: 'atlas', calls: 4, ms: 120 }], new Map([['atlas', 'speaking']]));
   assert.match(q('#load').innerHTML, /4× · 30ms/);
+});
+
+test('the modal, the sim band and the reply card can actually be hidden', () => {
+  // Regression: an author `display:` on a class beats the UA `[hidden]{display:none}`,
+  // so a popup with `hidden` set renders from page load and cannot be dismissed.
+  const css = fs.readFileSync(path.resolve('public/styles.css'), 'utf8');
+  const html = fs.readFileSync(path.resolve('public/index.html'), 'utf8');
+  assert.match(css, /\[hidden\]\s*\{[^}]*display:\s*none\s*!important/, 'styles.css must keep a global [hidden] guard');
+  const hiddenEls = [...html.matchAll(/<[a-z]+[^>]*\bhidden\b[^>]*>/gi)].map((m) => m[0]);
+  assert.ok(hiddenEls.length >= 4, `expected the HUD to use the hidden property, saw ${hiddenEls.length}`);
+  for (const tag of hiddenEls) {
+    const cls = (tag.match(/class="([^"]+)"/) || [, ''])[1].split(/\s+/).filter(Boolean);
+    for (const c of cls) {
+      const rule = new RegExp(`\\.${c}\s*\{([^}]*)\\}`);
+      const body = (css.match(rule) || [, ''])[1];
+      if (/display:/.test(body) && !/!important/.test(css.match(/\[hidden\][^}]*/)?.[0] ?? '')) {
+        assert.fail(`.${c} sets display: while also being hidden — the [hidden] guard is required`);
+      }
+    }
+  }
+});
+
+test('every dismissal path calls closeModal', () => {
+  const src = fs.readFileSync('public/js/app.js', 'utf8');
+  assert.match(src, /modal-close'\)\.addEventListener\('click', closeModal\)/);
+  assert.match(src, /if \(e\.target\.id === 'modal'\) closeModal\(\)/);
+  assert.match(src, /Escape[\s\S]{0,80}closeModal\(\)/);
+  assert.match(src, /function closeModal\(\)[\s\S]{0,220}modal\.hidden = true/);
 });
 
 test('session panel prints the countdown the server computed', () => {

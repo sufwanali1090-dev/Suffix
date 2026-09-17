@@ -367,8 +367,8 @@ function wireUi() {
     P.drawChart();
   });
   $('#btn-tv').addEventListener('click', openTradingView);
-  $('#modal-close').addEventListener('click', () => ($('#modal').hidden = true));
-  $('#modal').addEventListener('click', (e) => { if (e.target.id === 'modal') $('#modal').hidden = true; });
+  $('#modal-close').addEventListener('click', closeModal);
+  $('#modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
 
   // stage pointer → hover + click on seats, and steering
   const stage = $('#stage');
@@ -393,7 +393,7 @@ function wireUi() {
 
 function keys(e) {
   const typing = document.activeElement === $('#cmd');
-  if (e.key === 'Escape') { setFocus(null); $('#modal').hidden = true; return; }
+  if (e.key === 'Escape') { setFocus(null); closeModal(); return; }
   if (e.key === '?' || (e.key === '/' && !typing)) { e.preventDefault(); shortcuts(); return; }
   if (typing) return;
   if (e.code === 'Space') { e.preventDefault(); toggleTalk(); return; }
@@ -553,6 +553,15 @@ function shortcuts() {
 function openModal(html) {
   $('#modal-body').innerHTML = html;
   $('#modal').hidden = false;
+  $('#modal-close').focus?.({ preventScroll: true });
+}
+
+/** Close, then drop the payload so an embedded TradingView stops streaming. */
+function closeModal() {
+  const modal = $('#modal');
+  if (modal.hidden) return;
+  modal.hidden = true;
+  setTimeout(() => { if ($('#modal').hidden) $('#modal-body').innerHTML = ''; }, 400);
 }
 
 // keep the countdown ticking between SSE pushes
