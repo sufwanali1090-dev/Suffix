@@ -190,12 +190,17 @@ test('the modal, the sim band and the reply card can actually be hidden', () => 
   }
 });
 
-test('every dismissal path calls closeModal', () => {
-  const src = fs.readFileSync('public/js/app.js', 'utf8');
-  assert.match(src, /modal-close'\)\.addEventListener\('click', closeModal\)/);
-  assert.match(src, /if \(e\.target\.id === 'modal'\) closeModal\(\)/);
-  assert.match(src, /Escape[\s\S]{0,80}closeModal\(\)/);
-  assert.match(src, /function closeModal\(\)[\s\S]{0,220}modal\.hidden = true/);
+test('the HUD has no popup layer, by construction', () => {
+  // No modal, no overlay, no "dismiss me" affordance to get wrong: the desk is
+  // three columns and an orb. Anything that needs more room opens in a tab.
+  const html = fs.readFileSync('public/index.html', 'utf8');
+  const app = fs.readFileSync('public/js/app.js', 'utf8');
+  const css = fs.readFileSync('public/styles.css', 'utf8');
+  assert.doesNotMatch(html, /class="modal"|id="modal"/, 'index.html must not carry a modal');
+  assert.doesNotMatch(app, /openModal|closeModal/, 'app.js must not manage one');
+  assert.doesNotMatch(css, /^\.modal\s*\{/, 'styles.css must not style one');
+  // and whatever is hidden by property still respects it
+  assert.match(css, /\[hidden\]\s*\{[^}]*display:\s*none\s*!important/);
 });
 
 test('session panel prints the countdown the server computed', () => {

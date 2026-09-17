@@ -94,7 +94,7 @@ curl -N localhost:8787/api/stream          # everything the HUD paints, as it ha
 | `1`–`9` | focus a seat · `←` `→` cycle |
 | `m` | voices: master → all seats → muted |
 | `h` | hand tracking (MediaPipe): point to lean the orb, pinch to grab a seat, swipe to flip symbols |
-| `f` / `t` | fullscreen · TradingView embed |
+| `f` / `t` | fullscreen · TradingView in a new tab |
 
 Click a ring in Market Pulse to load that symbol on the Screens panel. Click a node on the
 orb to hear who it is.

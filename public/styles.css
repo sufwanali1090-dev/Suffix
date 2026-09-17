@@ -31,8 +31,8 @@
 
 * { box-sizing: border-box; }
 /* Any element we hide with the `hidden` property must win over a class-level
-   `display:` rule. Without this the modal paints from page load and no amount
-   of × / Esc / backdrop clicking can dismiss it. */
+   `display:` rule — an author `display` beats the UA `[hidden]{display:none}`,
+   which is how an "invisible" overlay ends up veiling the whole desk. */
 [hidden] { display: none !important; }
 html, body { height: 100%; }
 body {
@@ -255,14 +255,14 @@ body.speaking .orb-word { animation: speak-flicker .42s steps(2) infinite; }
   border-radius: 13px; background: rgba(9, 13, 23, .93); border: 1px solid var(--line); backdrop-filter: blur(7px);
   box-shadow: var(--glow); animation: pop .22s ease-out; }
 @keyframes pop { from { opacity: 0; transform: translateY(6px) scale(.98); } }
-.focus-card .close, .modal .close {
+.focus-card .close {
   position: absolute; right: 8px; top: 6px; width: 30px; height: 30px;
   display: grid; place-items: center; border: 1px solid var(--line); border-radius: 9px;
   background: rgba(255,255,255,.04); color: var(--ink-2); font: 600 17px/1 var(--mono);
   cursor: pointer; transition: .16s ease;
 }
-.focus-card .close:hover, .modal .close:hover { color: #fff; border-color: rgba(255, 203, 82, .5); background: rgba(255, 203, 82, .16); }
-.focus-card .close:focus-visible, .modal .close:focus-visible { outline: 2px solid rgba(255, 203, 82, .6); outline-offset: 2px; }
+.focus-card .close:hover { color: #fff; border-color: rgba(255, 203, 82, .5); background: rgba(255, 203, 82, .16); }
+.focus-card .close:focus-visible { outline: 2px solid rgba(255, 203, 82, .6); outline-offset: 2px; }
 .fc-top { display: flex; align-items: center; gap: 8px; }
 .fc-top .glyph { font-size: 15px; }
 .fc-top h3 { margin: 0; font: 800 12.5px/1 var(--mono); letter-spacing: .12em; }
@@ -383,12 +383,7 @@ kbd { font: 700 9px/1 var(--mono); border: 1px solid var(--line); border-radius:
 .chip:hover { color: var(--ink); border-color: rgba(255, 203, 82, .4); background: rgba(255,203,82,.09); transform: translateY(-1px); }
 .cmdbar-note { display: flex; gap: 10px; justify-content: center; padding-top: 7px; font: 600 9px/1.6 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
 
-/* ── modal / toast ─────────────────────────────────────────────────────────── */
-.modal { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; background: rgba(2, 4, 9, .8); backdrop-filter: blur(5px); }
-.modal-card { position: relative; animation: pop .2s ease-out; width: min(940px, 92vw); max-height: 84vh; overflow: auto; padding: 18px 20px;
-  background: linear-gradient(168deg, rgba(16, 23, 38, .98), rgba(9, 13, 22, .98)); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--glow); }
-.modal-card iframe { width: 100%; height: 62vh; border: 1px solid var(--line-soft); border-radius: 12px; background: #0a0e17; }
-.modal-card h3 { margin: 0 0 10px; font: 800 12px/1 var(--mono); letter-spacing: .18em; text-transform: uppercase; color: var(--gold); }
+/* ── toast ───────────────────────────────────────────────────────────────── */
 .toast { position: fixed; left: 50%; bottom: 104px; transform: translateX(-50%); z-index: 50; padding: 10px 16px;
   background: rgba(10, 14, 24, .96); border: 1px solid var(--line); border-radius: 12px; font-size: 12px; color: var(--ink);
   box-shadow: 0 20px 50px -20px rgba(0,0,0,.9); animation: pop .2s ease-out; }

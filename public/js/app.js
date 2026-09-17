@@ -367,8 +367,6 @@ function wireUi() {
     P.drawChart();
   });
   $('#btn-tv').addEventListener('click', openTradingView);
-  $('#modal-close').addEventListener('click', closeModal);
-  $('#modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
 
   // stage pointer → hover + click on seats, and steering
   const stage = $('#stage');
@@ -393,7 +391,7 @@ function wireUi() {
 
 function keys(e) {
   const typing = document.activeElement === $('#cmd');
-  if (e.key === 'Escape') { setFocus(null); closeModal(); return; }
+  if (e.key === 'Escape') { setFocus(null); return; }
   if (typing) return;
   if (e.code === 'Space') { e.preventDefault(); toggleTalk(); return; }
   if (/^[1-9]$/.test(e.key)) {
@@ -519,31 +517,22 @@ async function toggleHands() {
 }
 
 // ── modals ────────────────────────────────────────────────────────────────────
+// ── external chart, no overlay ────────────────────────────────────────────────
+/**
+ * TradingView opens in its own tab. Nothing in this HUD draws a layer over the
+ * desk: the panels, the orb and the gate are the interface, and a modal on top
+ * of them is strictly worse than a second window the operator can look at while
+ * the desk keeps talking.
+ */
 function openTradingView() {
   const sym = state.symbol || 'SPY';
-  const host = `https://s.tradingview.com/widgetembed/?theme=dark&style=1&symbol=${encodeURIComponent('NASDAQ:' + sym)}`;
-  openModal(`<h3>Screens · ${esc(sym)}</h3>
-    <p style="color:var(--ink-2);font-size:12px;margin:0 0 10px">
-      The desk draws on its own chart without this. Embedding TradingView here needs your browser to reach
-      s.tradingview.com — and to drive your actual desktop charts, set
-      <code style="font-family:var(--mono);color:var(--gold)">TRADINGVIEW_MCP_URL</code> (docs/TRADINGVIEW-MCP.md).
-    </p>
-    <iframe src="${esc(host)}" title="TradingView ${esc(sym)}" loading="lazy" allow="fullscreen"></iframe>
-    <p style="margin:10px 0 0"><a class="btn ghost" href="${esc(host)}" target="_blank" rel="noopener">open in a tab</a></p>`);
-}
-
-function openModal(html) {
-  $('#modal-body').innerHTML = html;
-  $('#modal').hidden = false;
-  $('#modal-close').focus?.({ preventScroll: true });
-}
-
-/** Close, then drop the payload so an embedded TradingView stops streaming. */
-function closeModal() {
-  const modal = $('#modal');
-  if (modal.hidden) return;
-  modal.hidden = true;
-  setTimeout(() => { if ($('#modal').hidden) $('#modal-body').innerHTML = ''; }, 400);
+  const url = `https://www.tradingview.com/chart/?symbol=${encodeURIComponent('NASDAQ:' + sym)}`;
+  const win = window.open(url, '_blank');
+  if (!win) {
+    P.toast('the browser blocked that tab — allow pop-ups for this page (or ⌘/Ctrl-click the button)', true);
+    return;
+  }
+  try { win.opener = null; } catch { /* cross-origin already detached */ }
 }
 
 // keep the countdown ticking between SSE pushes
