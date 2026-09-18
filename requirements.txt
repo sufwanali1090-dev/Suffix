@@ -1,0 +1,66 @@
+# =============================================================================
+# SUFFIX TRADING DESK — Python quant / agent stack
+# -----------------------------------------------------------------------------
+#  Agent 10 (SUFFIX) voice bridge, Agents 1-9 + 11 analytical + execution core.
+#
+#  Install:  python3 -m venv .venv && . .venv/bin/activate
+#            pip install -r requirements.txt
+#
+#  NOTE ON OPTIONAL HEAVY LIBRARIES
+#  --------------------------------
+#  `vectorbt` (and its numba/llvmlite toolchain) plus `optuna` are the primary
+#  engines for Agent 11 (QUANTUM).  Both are declared here.  If a platform
+#  cannot build them, `server/quantum.py` transparently degrades:
+#    * vectorbt missing  -> internal NumPy/Pandas vectorized backtester
+#    * optuna missing    -> internal seeded random-search + TPE-lite sampler
+#  The Death Line, Sharpe/Profit-Factor gates and the adaptive penalty are
+#  enforced by SUFFIX itself, never by the third party library.
+# =============================================================================
+
+# --- Core transport / bridge -------------------------------------------------
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.6
+websockets>=12.0
+httpx>=0.27.2
+aiohttp>=3.10.5
+python-dotenv>=1.0.1
+pydantic>=2.9.2
+pydantic-settings>=2.5.2
+orjson>=3.10.7
+python-multipart>=0.0.12
+apscheduler>=3.10.4
+joblib>=1.4.2
+
+# --- Numerics -----------------------------------------------------------------
+numpy>=1.26.4
+pandas>=2.2.3
+scipy>=1.14.1
+# Technical indicators (EMA/RSI/ATR/ADX/Bollinger/MACD) are implemented natively
+# in server/indicators.py — no third-party TA wheel required.
+
+# --- Self-learning hedge fund (Agent 11) -------------------------------------
+optuna>=4.0.0
+vectorbt>=0.27.0
+# vectorbt 1.x still calls the removed plotly `scattermapbox` trace, so plotly
+# must stay on the 5.x line until upstream ports to plotly 6+.
+plotly>=5.24.1,<6
+scikit-learn>=1.5.2
+
+# --- Market data providers ----------------------------------------------------
+yfinance>=0.2.44
+requests>=2.32.3
+
+# --- LEDGER persistence -------------------------------------------------------
+# Uses the Python standard library `sqlite3` driver (no extra wheel required).
+# SQLAlchemy is intentionally NOT used so the trade journal has zero moving parts.
+# sqlite3      (stdlib)
+# hashlib      (stdlib)
+# json         (stdlib)
+
+# --- Local AI services (run as sidecars, see README "Sidecars") ---------------
+# whisper.cpp builds its own binary (modules/whisper.cpp/build/bin/whisper-cli).
+# Kokoro-82M is served by kokoro-fastapi in its own process (torch lives there,
+# NOT here) or via the hosted ElevenLabs API.  SUFFIX only speaks HTTP to them:
+#   * server/providers/stt.py  -> whisper.cpp server  (http://127.0.0.1:8082)
+#   * server/providers/tts.py  -> kokoro-fastapi      (http://127.0.0.1:8880)
+#                              -> ElevenLabs API      (https://api.elevenlabs.io)

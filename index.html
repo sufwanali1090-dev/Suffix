@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>SUFFIX TRADING DESK</title>
+    <meta
+      name="description"
+      content="SUFFIX TRADING DESK — cinematic AI trading desk. Nine agents, one voice."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body,
+      #root {
+        height: 100%;
+        margin: 0;
+        background: #03040a;
+      }
+      /* Suppress the first-paint flash before React mounts. */
+      #root:empty::after {
+        content: 'SUFFIX — INITIALISING';
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        font: 300 12px/1 'JetBrains Mono', monospace;
+        letter-spacing: 0.6em;
+        color: rgba(34, 211, 238, 0.6);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

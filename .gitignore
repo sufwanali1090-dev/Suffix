@@ -1,0 +1,44 @@
+# --- Node / Electron ---------------------------------------------------------
+node_modules/
+dist/
+dist-electron/
+release/
+.vite/
+*.tsbuildinfo
+
+# --- Python ------------------------------------------------------------------
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- SUFFIX runtime state (LEDGER journal, Optuna studies, model cache) -----
+runtime/
+data/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite3
+logs/
+stt-out/
+
+# --- External agent repositories (cloned by scripts/clone_modules.sh) -------
+modules/
+!modules/.gitkeep
+
+# --- Secrets -----------------------------------------------------------------
+.env
+.env.local
+*.pem
+credentials.json
+
+# --- Media / model weights ---------------------------------------------------
+*.ggml
+*.gguf
+*.bin
+*.onnx
+*.task

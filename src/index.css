@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --grid-line: rgba(34, 211, 238, 0.055);
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    @apply bg-void-900 text-slate-200 font-display antialiased;
+    background-image: theme('backgroundImage.radial-void');
+    /* The desk is a fixed-viewport instrument: no rubber-banding, no zoom. */
+    overscroll-behavior: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  ::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(34, 211, 238, 0.24);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(34, 211, 238, 0.42);
+  }
+
+  /* The window is frameless — let the shell be dragged by the title bar. */
+  .drag-region {
+    -webkit-app-region: drag;
+  }
+  .no-drag {
+    -webkit-app-region: no-drag;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply relative rounded-xl border border-signal-400/12 bg-void-800/70 backdrop-blur-sm shadow-panel;
+  }
+
+  .panel-header {
+    @apply flex items-center justify-between gap-3 border-b border-signal-400/10 px-3.5 py-2;
+  }
+
+  .panel-title {
+    @apply font-mono text-[10px] uppercase tracking-[0.28em] text-signal-200/70;
+  }
+
+  .readout {
+    @apply font-mono tabular-nums tracking-tight;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.16em];
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-signal-400/20
+           bg-signal-400/[0.06] px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em]
+           text-signal-100/90 transition-all duration-150 hover:border-signal-400/45
+           hover:bg-signal-400/15 hover:text-white active:scale-[0.97]
+           disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-signal-400/[0.06];
+  }
+
+  .btn-danger {
+    @apply border-bear/35 bg-bear/10 text-bear/95 hover:border-bear/70 hover:bg-bear/20 hover:text-white;
+  }
+
+  .btn-warn {
+    @apply border-caution/35 bg-caution/10 text-caution/95 hover:border-caution/70 hover:bg-caution/20 hover:text-white;
+  }
+
+  .btn-ghost {
+    @apply border-white/8 bg-white/[0.02] text-slate-400 hover:border-white/20 hover:text-slate-100;
+  }
+
+  .scanlines::after {
+    content: '';
+    @apply pointer-events-none absolute inset-0 z-10 opacity-[0.16];
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 2px,
+      rgba(0, 0, 0, 0.5) 3px
+    );
+    mix-blend-mode: overlay;
+  }
+
+  .vignette::before {
+    content: '';
+    @apply pointer-events-none absolute inset-0 z-20;
+    background: radial-gradient(ellipse at center, transparent 42%, rgba(0, 0, 0, 0.55) 100%);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 18px currentColor;
+  }
+
+  .hairline {
+    @apply border-white/[0.06];
+  }
+}
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  .grain {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  }
+}
+
+/* Respect the OS reduced-motion setting: the orb is decoration, not data. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
