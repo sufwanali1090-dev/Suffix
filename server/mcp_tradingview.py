@@ -63,7 +63,12 @@ class TradingViewMCP:
             return {"status": "disabled", "detail": "SUFFIX_MCP_TRADINGVIEW=0"}
         if self.available:
             return {"status": "already_attached", "tools": len(self.tools)}
-        if shutil.which(self.command) is None:
+        # Resolve to a full path and spawn THAT, never the bare name. On Windows
+        # `npx` is a `npx.cmd` shim and CreateProcess only ever appends `.exe`,
+        # so passing the bare command fails with FileNotFoundError even though
+        # the availability check above succeeded.
+        executable = shutil.which(self.command)
+        if executable is None:
             self.status = "unavailable"
             self.last_error = f"command '{self.command}' not found on PATH"
             log.warning("TradingView MCP unavailable: %s", self.last_error)
@@ -71,7 +76,7 @@ class TradingViewMCP:
 
         try:
             self.proc = await asyncio.create_subprocess_exec(
-                self.command, *self.args,
+                executable, *self.args,
                 stdin=asyncio.subprocess.PIPE,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,

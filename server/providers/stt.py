@@ -36,8 +36,38 @@ class SpeechToText:
     def __init__(self) -> None:
         self.backend = settings.suffix_stt_backend
         self.url = settings.whisper_cpp_url
-        self.bin = (ROOT_DIR / settings.whisper_cpp_bin) if not os.path.isabs(settings.whisper_cpp_bin) else Path(settings.whisper_cpp_bin)
+        self.bin = self._resolve_bin()
         self.model = (ROOT_DIR / settings.whisper_cpp_model) if not os.path.isabs(settings.whisper_cpp_model) else Path(settings.whisper_cpp_model)
+
+    @staticmethod
+    def _resolve_bin(windows: Optional[bool] = None) -> Path:
+        """Locate the whisper.cpp CLI across build layouts.
+
+        The configured path assumes a Unix single-config build
+        (``build/bin/whisper-cli``). A Windows MSVC build is multi-config and
+        drops the binary at ``build/bin/Release/whisper-cli.exe``, so probe the
+        plausible locations and take the first that exists.
+
+        ``windows`` is injectable so the search order can be tested on any host.
+        """
+        if windows is None:
+            windows = os.name == "nt"
+        configured = Path(settings.whisper_cpp_bin)
+        base = configured if configured.is_absolute() else ROOT_DIR / configured
+        candidates = [base]
+        if windows:
+            stem = base.name
+            candidates += [
+                base.with_suffix(".exe"),
+                base.parent / "Release" / f"{stem}.exe",
+                base.parent / "Debug" / f"{stem}.exe",
+            ]
+        for candidate in candidates:
+            if candidate.exists():
+                return candidate
+        # Nothing built yet: report the most likely target so the health frame
+        # and the "not built" error point at a path that would be correct.
+        return candidates[1] if windows else base
 
     # ------------------------------------------------------------------ health
     def health(self) -> Dict[str, Any]:

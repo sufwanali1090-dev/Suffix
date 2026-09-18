@@ -85,6 +85,42 @@ Suffix/
 
 ## Quick start
 
+### Windows — two double-clicks
+
+```
+1. install.bat           Python venv + pip + npm + HUD build
+2. start-dashboard.bat   starts the desk and opens http://127.0.0.1:8000/
+```
+
+`install.bat` is safe to re-run; every step it has already satisfied is skipped.
+It verifies Python 3.11+, Node 18+, the core imports and the bridge module, and
+finishes with a ready/not-ready summary. Options:
+
+```
+install.bat --no-build     skip the HUD production build
+install.bat --modules      clone hermes-agent / worldmonitor / TradingAgents
+install.bat --whisper      build whisper.cpp for voice input (needs cmake)
+```
+
+`start-dashboard.bat` checks your setup, builds the HUD if it is missing, then
+serves the whole desk from a single port and opens a browser once `/health`
+answers — so you never land on a connection-refused page.
+
+```
+start-dashboard.bat --port 9000    serve elsewhere
+start-dashboard.bat --no-open      don't launch a browser
+start-dashboard.bat --dev          Vite dev server with hot reload (:5173)
+start-dashboard.bat --testnet      arm the Binance testnet rehearsal
+```
+
+Stop the desk with **Ctrl+C** in the start window.
+
+> Any missing prerequisite is reported with the exact download link, and both
+> scripts `pause` before exiting so a double-clicked window never vanishes
+> before you can read it.
+
+### Linux / macOS
+
 ```bash
 cp .env.example .env          # optional: add FINNHUB_API_KEY for live headlines
 bash scripts/bootstrap.sh     # venv + pip + npm
@@ -103,6 +139,14 @@ npm run build                 # typecheck + dist/ + dist-electron/
 Everything runs with **no API keys and no network**: `server/market_data.py`
 degrades `live → cache → deterministic simulator`, and every simulated frame is
 labelled `data_quality: "simulated"` all the way up to the HUD.
+
+### One port, no proxy
+
+The bridge serves the built HUD from its own root, so `http://127.0.0.1:8000/`
+is a complete desk — UI, JSON-RPC and WebSocket on one origin, with no dev
+server in between. `GET /info` returns the JSON directive if you want the API
+view instead. This is what `start-dashboard.bat` uses; `--dev` swaps in Vite on
+:5173 for hot reload.
 
 ---
 
