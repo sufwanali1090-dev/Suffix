@@ -25,11 +25,13 @@ import json
 import logging
 import time
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Any, Awaitable, Callable, Dict, List, Optional
 
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -177,16 +179,33 @@ class PreviewHeaderMiddleware(BaseHTTPMiddleware):
 app.add_middleware(PreviewHeaderMiddleware)
 
 
+# --------------------------------------------------------------------------- #
+#  The built HUD
+# --------------------------------------------------------------------------- #
+# The renderer bundle is served from the bridge itself so a single port
+# (SUFFIX_API_PORT) is a complete desk: open it in a browser and the cinematic
+# HUD comes up on the very origin it talks to. That matters in proxied preview
+# environments where the API port is the one that gets exposed. The bundle uses
+# relative asset paths and a relative WebSocket, so it needs no configuration.
+#
+# `dist/` is a build artifact and may be absent on a fresh checkout; the mount
+# is only registered when it exists, and `/info` always stays the
+# machine-readable view either way.
+HUD_DIST = Path(__file__).resolve().parent.parent / "dist"
+HUD_AVAILABLE = HUD_DIST.is_dir() and (HUD_DIST / "index.html").is_file()
+
+
 # =========================================================================== #
 #  REST surface
 # =========================================================================== #
-@app.get("/")
-async def root() -> Dict[str, Any]:
+@app.get("/info")
+async def info() -> Dict[str, Any]:
     return {
         "name": settings.suffix_codename,
         "tagline": settings.suffix_tagline,
         "version": settings.suffix_version,
         "transport": {"http_rpc": "/rpc", "websocket": settings.suffix_ws_path},
+        "hud_served_here": HUD_AVAILABLE,
         "directive": {
             "starting_capital": settings.suffix_starting_capital,
             "death_line": settings.suffix_death_line,
@@ -197,6 +216,19 @@ async def root() -> Dict[str, Any]:
             "generations": settings.suffix_mutation_generations,
         },
     }
+
+
+if not HUD_AVAILABLE:
+
+    @app.get("/")
+    async def root() -> Dict[str, Any]:
+        """Without a build there is no HUD to serve — point at how to get one."""
+        return {
+            **await info(),
+            "note": "Run `npm run build`, then restart the bridge to serve the "
+                    "HUD from this port. In development the Vite dev server "
+                    "provides it on port 5173.",
+        }
 
 
 @app.get("/health")
@@ -794,6 +826,19 @@ async def _gesture_event(gesture: str, payload: Optional[Dict[str, Any]] = None)
 @rpc.register("rpc.describe")
 def _describe() -> Dict[str, Any]:
     return {"methods": sorted(rpc.methods), "stats": rpc.stats}
+
+
+# =========================================================================== #
+#  HUD mount — MUST stay last
+# =========================================================================== #
+# Starlette matches routes in registration order and a Mount on "/" is a
+# catch-all, so registering it here means every REST route, the RPC endpoint and
+# the WebSocket above take precedence and only unmatched paths fall through to
+# the bundle. Moving this earlier would shadow the API.
+if HUD_AVAILABLE:
+    app.mount("/", StaticFiles(directory=str(HUD_DIST), html=True), name="hud")
+    log.info("HUD bundle mounted from %s (open http://%s:%s/)",
+             HUD_DIST, settings.suffix_api_host, settings.suffix_api_port)
 
 
 # =========================================================================== #
