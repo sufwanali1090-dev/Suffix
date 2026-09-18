@@ -281,6 +281,7 @@ export interface TelemetryFrame {
   risk_state: RiskStateName;
   daily_pnl: number;
   quantum: GenerationState | null;
+  positions: Position[];
   fps: number;
   voices: number;
   latency_ms: number;

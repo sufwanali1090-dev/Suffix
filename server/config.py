@@ -120,6 +120,12 @@ class Settings(BaseSettings):
     suffix_quantum_seed: int = 1337
     suffix_history_days: int = 180
 
+    # ------------------------------------------------------------- telemetry
+    # How often the desk pushes a telemetry frame to connected HUDs. The frame
+    # carries 10 nodes with 48-point sparkline series, so ~2s keeps the ring and
+    # equity readouts live without flooding the socket.
+    suffix_telemetry_interval_sec: int = 2
+
     # ------------------------------------------------------------ networking
     suffix_api_host: str = "0.0.0.0"
     suffix_api_port: int = 8000

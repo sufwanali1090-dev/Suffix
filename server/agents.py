@@ -533,7 +533,7 @@ class OracleQuant:
         headline = (
             f"{symbol}: P(target first) = {p_win * 100:.1f}% over {self.SIMULATIONS:,} bootstrap paths; "
             f"R:R {rr:.2f}:1, EV {'+' if ev >= 0 else ''}{ev_per_dollar:.3f}R per unit risk"
-            + (f" | {strat.kind} genome {strat.strategy_uid[:10]}" if strat else " | no promoted genome"),
+            + (f" | {strat.kind} genome {strat.strategy_uid[:10]}" if strat else " | no promoted genome")
         )
         bullets = [
             f"Bracket: entry {entry:,.4f}, stop {stop:,.4f} ({stop_dist / entry * 100:.2f}%), "

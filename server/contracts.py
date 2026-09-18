@@ -419,6 +419,7 @@ class TelemetryFrame(BaseModel):
     risk_state: str = "ARMED"
     daily_pnl: float = 0.0
     quantum: Optional[GenerationState] = None
+    positions: List[Position] = Field(default_factory=list)
     fps: float = 0.0
     voices: int = 0
     latency_ms: float = 0.0

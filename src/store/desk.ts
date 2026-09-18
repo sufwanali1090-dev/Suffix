@@ -17,6 +17,7 @@ import type {
   ExtinctionRecord,
   GestureFlash,
   GestureName,
+  Position,
   PublicConfig,
   QuantumStateResponse,
   RiskVerdictRecord,
@@ -43,6 +44,7 @@ interface DeskStore {
   status_: DeskStatus | null;
   agents: AgentStatus[];
   reports: Partial<Record<AgentId, AgentReport>>;
+  positions: Position[];
 
   // ------------------------------------------------------------- narrative
   transcript: Utterance[];
@@ -130,6 +132,7 @@ export const useDesk = create<DeskStore>((set, get) => ({
   status_: null,
   agents: [],
   reports: {},
+  positions: [],
 
   transcript: [],
   events: [],
@@ -170,10 +173,12 @@ export const useDesk = create<DeskStore>((set, get) => ({
     unsubscribeSocket = bridge.onMessage((message) => {
       switch (message?.type) {
         case 'handshake': {
+          const hsFrame = message.telemetry as TelemetryFrame;
           set({
             config: message.directive as PublicConfig,
             version: message.version as string,
-            frame: message.telemetry as TelemetryFrame,
+            frame: hsFrame,
+            positions: hsFrame?.positions ?? [],
             backendOk: true,
           });
           break;
@@ -182,8 +187,12 @@ export const useDesk = create<DeskStore>((set, get) => ({
           const now = performance.now();
           frameTimes.push(now);
           frameTimes = frameTimes.filter((t) => now - t < 1500);
+          const next = message.frame as TelemetryFrame;
           set({
-            frame: message.frame as TelemetryFrame,
+            frame: next,
+            // Positions ride the telemetry frame so the panel tracks
+            // mark-to-market instead of going stale between polls.
+            positions: next?.positions ?? [],
             fps: Math.round((frameTimes.length / 1.5) * 10) / 10,
           });
           break;

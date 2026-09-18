@@ -317,7 +317,9 @@ class SuffixOrchestrator:
                         balance=account["balance"], equity=account["equity"],
                         drawdown_pct=account["drawdown_pct"],
                         open_positions=len(self.broker.positions))
-                if seconds % 15 == 0:
+                # `seconds` advances by 2 per tick, so a modulo against an odd
+                # interval can never fire. Compare against a real interval.
+                if seconds % max(2, settings.suffix_telemetry_interval_sec) == 0:
                     await self._broadcast({"type": "telemetry",
                                            "frame": self.telemetry().model_dump(mode="json")})
             except asyncio.CancelledError:
@@ -898,6 +900,11 @@ class SuffixOrchestrator:
             risk_state=self.broker.risk_state,
             daily_pnl=round(self.broker.daily_realized_pnl + self.broker.unrealized_pnl(), 4),
             quantum=self.engine.state(),
+            # The HUD's positions panel is fed from the frame, not from a poll —
+            # positions are working state and must move with the mark-to-market.
+            # `open_positions` already holds live Position models (see
+            # `PaperBroker.account_snapshot`), so pass them through untouched.
+            positions=list(account["open_positions"]),
             voices=len([r for r in report_map.values()]),
             latency_ms=round(float(np.mean([r.latency_ms for r in report_map.values()])) if report_map else 0.0, 2),
         )

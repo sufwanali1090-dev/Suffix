@@ -238,7 +238,13 @@ export default function App() {
     [desk.frame?.risk_state, desk.status_?.sentinel.state],
   );
   const sentinel = desk.status_?.sentinel ?? null;
-  const positions = desk.status_?.positions ?? [];
+  // Frame-fed positions track the mark-to-market tick; status_ is the fallback
+  // before the first frame lands or if a poll races ahead of it.
+  const positions = desk.frame?.positions?.length
+    ? desk.frame.positions
+    : desk.positions.length
+      ? desk.positions
+      : desk.status_?.positions ?? [];
   const focusedReport = desk.focusedAgent ? desk.reports[desk.focusedAgent] ?? null : null;
   const focusedStatus = desk.focusedAgent
     ? desk.agents.find((a) => a.agent === desk.focusedAgent) ?? null

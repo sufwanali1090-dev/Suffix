@@ -54,6 +54,11 @@ log = logging.getLogger("suffix.broker")
 TOKEN_TTL_MS = 30_000          # an approval is valid for 30 seconds, single use
 LIQUIDATION_BUFFER = 0.004     # maintenance margin fraction used for liq. price
 
+# Only these flatten causes earn the KILLED status in the book. Everything else
+# (OPERATOR, UI, GESTURE, VOICE) is a discretionary close and is recorded as
+# CLOSED so the extinction history stays meaningful.
+TERMINAL_FLATTEN_REASONS = frozenset({"DEATH_LINE", "KILL_SWITCH", "VOICE_KILL_SWITCH"})
+
 
 # =========================================================================== #
 #  SENTINEL — the risk gate
@@ -671,10 +676,17 @@ class PaperBroker:
         return [r for r in (self.close_position(t, status=status) for t in list(self.positions)) if r]
 
     def flatten_all(self, reason: str = "KILL_SWITCH") -> List[Dict[str, Any]]:
-        """Emergency flatten — used by the death line and the voice kill-switch."""
+        """Close every working position.
+
+        Only the terminal causes — the death line and the kill switch — are
+        recorded as ``KILLED``. An operator, UI or gesture flatten is an
+        ordinary discretionary close, and writing it to the book as a kill
+        would corrupt the extinction history LEDGER reports on.
+        """
+        status = "KILLED" if reason.upper() in TERMINAL_FLATTEN_REASONS else "CLOSED"
         out: List[Dict[str, Any]] = []
         for ticket in list(self.positions):
-            rec = self.close_position(ticket, status="KILLED")
+            rec = self.close_position(ticket, status=status)
             if rec:
                 rec["reason"] = reason
                 out.append(rec)
